@@ -135,15 +135,9 @@ function onChange(event){
     }
     reader.readAsText(file);
     disableCalculate(false);
+    disableMoveForward(true);
+    disableMoveBack(true);
 }
-/*
-function SyntaxError(message){
-    this.message = message;
-    this.stack = (new Error()).stack;
-}
-SyntaxError.prototype = Object.create(Error.prototype);
-SyntaxError.prototype.name = "SyntaxError";
-*/
 
 function processJsonStr(){
     var jsonObj;
@@ -155,6 +149,8 @@ function processJsonStr(){
             + /*" on line # " +  e.linenumber + */
             ". Fix/edit/change the file and try again.";
             disableCalculate(true);
+            disableMoveBack(true);
+            disableMoveForward(true);
             return;
         } else {throw(e); }
     }
@@ -171,13 +167,16 @@ function processJsonStr(){
     });
     resultParagraph.textContent = output;
     disableMoveBack(false);
+    disableMoveForward(true);
 }
 
 function moveBack(){
+    disableMoveForward(false);
     return;
 }
 
 function moveForward(){
+    disableMoveBack(false);
     return;
 }
 

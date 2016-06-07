@@ -51,34 +51,42 @@
 </div> <!-- class="grid" -->
 
 <h1>Data Collection &amp; Processing</h1>
-    <h1>File Content</h1>
-    <p id="download">
-    Contents of the file you choose will go here.
-    </p>
 
-<div class="row" id="moveDiv">
-    <div class="col-3">
-        <!-- NOTE: attribute is onchange for an event.-->
-        <input type="file" onchange="onChange(event)" />
-    </div> <!--col-3-->
-    <div class="col-3">
-        <!-- NOTE: attribute is onclick for a button.-->
-        <input type='button' id='calculate'
-            value='Calculate' onclick='processJsonStr();'>
-    </div> <!--col-3-->
-    <div class="col-3" id="moveBackDiv">
-        <input type='button'
-            id='moveBackButton' name='moveBackButton'
-            value='Previous Reading' onclick='moveBack();'>
-    </div> <!--col-3-->
-    <div class="col-3" id="moveForwardDiv">
-        <input type='button'
-            id='moveForwardButton' name='moveForwardButton'
-            value='More Recent Reading' onclick='moveForward();'>
-    </div> <!--col-3-->
-</div> <!--row-->
+<div class='grid'>
 
-<div class="grid">
+    <div class="row" id="moveDiv">
+        <div class="col-3">
+            <!-- NOTE: attribute is onchange for an event.-->
+            <input type="file" onchange="onChange(event)" />
+        </div> <!--col-3-->
+        <div class="col-3">
+            <!-- NOTE: attribute is onclick for a button.-->
+            <input type='button' id='calculate'
+                value='Calculate' onclick='processJsonStr();'>
+        </div> <!--col-3-->
+        <div class="col-3" id="moveBackDiv">
+            <input type='button'
+                id='moveBackButton' name='moveBackButton'
+                value='Previous Reading' onclick='moveBack();'>
+        </div> <!--col-3-->
+        <div class="col-3" id="moveForwardDiv">
+            <input type='button'
+                id='moveForwardButton' name='moveForwardButton'
+                value='More Recent Reading' onclick='moveForward();'>
+        </div> <!--col-3-->
+    </div> <!--row-->
+
+    <div class="row">
+        <div class="col-3">
+            <span class="size125">Result of file choice:</span>
+        </div>  <!-- class="col-3" -->
+        <div class="col-9">
+            <span id="download">
+            Report appears here.
+            </span>
+        </div> <!-- col-9 -->
+    </div>  <!--row-->
+
     <div class="row">
         <div class="col-6">
             <h2>Input Data</h2>
@@ -87,6 +95,7 @@
             <h2>Results</h2>
         </div>
     </div> <!--row-->
+
     <div class="row">
         <div class="col-2">
             <h3>Readings</h3>
@@ -101,6 +110,7 @@
             <h4>Details</h4>
         </div>  <!-- class="col-2" -->
     </div>  <!-- class="row" -->
+
     <div class="row">  <!-- Dates -->
         <div class="col-2">
             <h4>Dates</h4>
@@ -120,6 +130,7 @@
             <span id="winter">0</span> winter days.
         </div>  <!-- class="col-6" -->
     </div>  <!-- class="row" Dates -->
+
     <div class="row">
         <div class="col-2">
             <h4>Electricity</h4>
@@ -145,6 +156,7 @@
             </section>
         </div>  <!-- class="col-6" -->
     </div>  <!-- class="row" -->
+
     <div class="row">
         <div class="col-2">
             Propane @ $
@@ -172,6 +184,7 @@
             </section>
         </div>  <!-- class="col-6" -->
     </div>  <!-- class="row" -->
+
     <div class="row">
         <div class="col-4">
             <h3>Total Cost</h3>
