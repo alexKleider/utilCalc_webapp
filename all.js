@@ -314,16 +314,7 @@ function parseInput(fileContent){
     // Takes the file content (already read into fileContent)
     // and attempts to parse it into global var jsonObj.
     // Reverts to base state if parsing fails.
-    try{jsonObj =
-   /*  $.parseJSON(fileContent);
-*/
-    [
-{"date": "2016-03-19","gas": 30.1, "cost": 0, "kwh": 59466, "paid": 0},
-{"date": "2016-04-16","gas": 853.7, "cost": 4.079, "kwh": 59708, "paid": 181.35},
-{"date": "2016-05-23","gas": 1691.8, "cost": 3.379, "kwh": 60063, "paid": 105.21}
-];
-
-}
+    try{jsonObj = JSON.parse(fileContent); }
     catch(e){
         if (e instanceof SyntaxError){
             report.textContent = 
