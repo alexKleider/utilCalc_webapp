@@ -247,7 +247,7 @@ function onChange(event){
     disableMoveBack(true);
 }
 
-// Helper functions and globals for go2work():
+// Helper functions and globals for calculate():
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 var fileContent = '';  // Assigned by onChanage(event)
@@ -259,7 +259,7 @@ var topIndex = 0;       // Keeps track of top and
 var currentIndex = 0;   // current index of containers.
 
 function disableCalculate(bool){
-    document.getElementById("go2workButton").disabled = bool;
+    document.getElementById("calculateButton").disabled = bool;
 }
 
 function disableMoveBack(bool){
@@ -331,7 +331,7 @@ function parseInput(fileContent){
 }
 
 
-function go2work(){
+function calculate(){
     // Assigns values to containers array
     // setting its currentIndex and topIndex values;
     // Displays latest results and adjusts buttons.

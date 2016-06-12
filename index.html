@@ -9,7 +9,7 @@
 <header><span>Utility Cost Calculator</span></header>
 <h1>What Do We Owe for Utilities?</h1>
 <div class="grid">
-    <div class="row">
+    <div class="row">  <!--EXPLANATION-->
         <div class="col-4"> <h2>Overview</h2>
             <p>
             This site calculates your utility usage and
@@ -51,66 +51,69 @@
 
 <h1>Data Collection &amp; Processing</h1>
 
-    <div class="row">
-        <div class="col-3">
+    <div class="row">  <!--Collection and Processing-->
+        <div class="col-3">  <!--File Selection/onChange(event)-->
             <!-- NOTE: attribute is onchange for an event.-->
             <input type="file" onchange="onChange(event)" />
             <!-- Assigns fileContent by reading chosen file.-->
         </div> <!--col-3-->
         <div class="col-3">
+                    <!--Calculate/calculate()/"calculateButton"-->
             <!-- NOTE: attribute is onclick for a button.-->
             <button
-                onclick="go2work()"
-                id="go2workButton">Calculate</button>
+                onclick="calculate()"
+                id="calculateButton">Calculate</button>
         </div> <!--col-3-->
         <div class="col-3">
+                    <!--moveBack()/"moveBackButton"-->
             <button
                 onclick="moveBack()"
                 id="moveBackButton">Previous Reading</button>
         </div> <!--col-3-->
         <div class="col-3">
+                    <!--moveForward()/"moveForwardButton"-->
             <button onclick="moveForward()"
                 id="moveForwardButton">
                 More Recent Reading</button>
         </div> <!--col-3-->
     </div> <!--row-->
 
-    <div class="row">
+    <div class="row">  <!--File Content "report"-->
         <div class="col-3">
-            <span class="size125">Result of file choice:</span>
+            <span class="size125">File Content:</span>
         </div>  <!-- class="col-3" -->
         <div class="col-9" id="report">
-            Report appears here.
+            None chosen as yet.
         </div> <!-- col-9 -->
     </div>  <!--row-->
 
     <div class="row">
         <div class="col-6">
-            <h2>Input Data</h2>
+            <span class="size150">Input Data</span>
         </div>
         <div class="col-6">
-            <h2>Results</h2>
+            <span class="size150">Results</span>
         </div>
     </div> <!--row-->
 
     <div class="row">
         <div class="col-2">
-            <h3>Readings</h3>
+            <span class="size150">Readings</span>
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-            <h4>Previous</h4>
+            <span class="size125">Previous</span>
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-            <h4>Current</h4>
+            <span class="size125">Current</span>
         </div>  <!-- class="col-2" -->
         <div class="col-6">
-            <h4>Details</h4>
+            <span class="size125">Details</span>
         </div>  <!-- class="col-2" -->
     </div>  <!-- class="row" -->
 
     <div class="row">  <!-- Dates -->
         <div class="col-2">
-            <h4>Dates</h4>
+            <span class="size125">Dates</span>
         </div>  <!-- class="col-2" -->
         <div class="col-2">
         <span id="prevDate">1945-07-03</span>
@@ -126,7 +129,7 @@
 
     <div class="row">
         <div class="col-2">
-            <h4>Electricity</h4>
+            <span class="size125">Electricity</span>
         </div>  <!-- class="col-2" -->
         <div class="col-2">
             <span id="kwhPrev"> ????</span> kWh
@@ -146,7 +149,8 @@
     </div>  <!-- class="row" -->
 
     <div class="row">
-        <div class="col-2">Propane @ $
+        <div class="col-2">
+            <span class="size125">Propane</span><br />@ $
             <span id="gasPrice"> ?.??</span>/gal
         </div>  <!-- class="col-2" -->
         <div class="col-2">
