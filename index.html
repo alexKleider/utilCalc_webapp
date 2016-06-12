@@ -9,70 +9,69 @@
 <header><span>Utility Cost Calculator</span></header>
 <h1>What Do We Owe for Utilities?</h1>
 <div class="grid">
-<div class="row">
-    <div class="col-4"> <h2>Overview</h2>
-        <p>
-        This site calculates your utility usage and
-        associated cost.  It does so based on data 
-        that you must provide in a rigidly formatted
-        JSON file.  Any syntax errors will cause failure.
-        See the accompanying 'readings.json' file; its
-        syntax is fairly straight forward.  The outer
-        square brackets indicate a list and each comma
-        separated component is a curly bracket enclosed 
-        collection of name/value pairs, also separated
-        by comas. All names are in quotes.  Values can
-        be numbers or string literals wich must also be
-        in quotes.
-        </p>
-    </div>  <!-- Overview: class="col-4"-->
-    <div class="col-4"> <h2>The Electricity Meter</h2>
-        <p>Calculating the cost of electricity is complicated
-        because of the way PG&amp;E prices their product.  It
-        involves tier pricing with base levels varying by
-        season and by region within the state (CA.) For now,
-        the region which includes Bolinas is assumed and
-        pricing is assumed to be that in effect at time of
-        writing (mid 2016.)
-        </p>
-    </div>  <!-- Electricity: class="col-4"-->
-    <div class="col-4"> <h2>The Gas Meter</h2>
-        <p>Once the gas meter has been read, calculating
-        the cost of what has been consumed is much easier
-        since the only variable other than amount used is
-        the cost (which has been quite volatile.) The one
-        minor complication is that the meter reads cubic
-        feet while price is by the gallon.  Therefore a
-        conversion factor
-        (<span id="conversionFactor">gallons per cubic foot</span>)
-        is needed.  </p>
-    </div>  <!-- Gas: class="col-4"-->
-</div>  <!-- class="row"-->
-</div> <!-- class="grid" -->
+    <div class="row">
+        <div class="col-4"> <h2>Overview</h2>
+            <p>
+            This site calculates your utility usage and
+            associated cost.  It does so based on data 
+            that you must provide in a rigidly formatted
+            JSON file.  Any syntax errors will cause failure.
+            See the accompanying 'readings.json' file; its
+            syntax is fairly straight forward.  The outer
+            square brackets indicate a list and each comma
+            separated component is a curly bracket enclosed 
+            collection of name/value pairs, also separated
+            by comas. All names are in quotes.  Values can
+            be numbers or string literals wich must also be
+            in quotes.
+            </p>
+        </div>  <!-- Overview: class="col-4"-->
+        <div class="col-4"> <h2>The Electricity Meter</h2>
+            <p>Calculating the cost of electricity is complicated
+            because of the way PG&amp;E prices their product.  It
+            involves tier pricing with base levels varying by
+            season and by region within the state (CA.) For now,
+            the region which includes Bolinas is assumed and
+            pricing is assumed to be that in effect at time of
+            writing (mid 2016.)
+            </p>
+        </div>  <!-- Electricity: class="col-4"-->
+        <div class="col-4"> <h2>The Gas Meter</h2>
+            <p>Once the gas meter has been read, calculating
+            the cost of what has been consumed is much easier
+            since the only variable other than amount used is
+            the cost (which has been quite volatile.) The one
+            minor complication is that the meter reads cubic
+            feet while price is by the gallon.  Therefore a
+            conversion factor
+            (<span id="conversionFactor">gallons per cubic foot</span>)
+            is needed.  </p>
+        </div>  <!-- Gas: class="col-4"-->
+    </div>  <!-- class="row"-->
 
 <h1>Data Collection &amp; Processing</h1>
 
-<div class='grid'>
-
-    <div class="row" id="moveDiv">
+    <div class="row">
         <div class="col-3">
             <!-- NOTE: attribute is onchange for an event.-->
             <input type="file" onchange="onChange(event)" />
+            <!-- Assigns fileContent by reading chosen file.-->
         </div> <!--col-3-->
         <div class="col-3">
             <!-- NOTE: attribute is onclick for a button.-->
-            <input type='button' id='calculate'
-                value='Calculate' onclick='processJsonStr();'>
+            <button
+                onclick="go2work()"
+                id="go2workButton">Calculate</button>
         </div> <!--col-3-->
-        <div class="col-3" id="moveBackDiv">
-            <input type='button'
-                id='moveBackButton' name='moveBackButton'
-                value='Previous Reading' onclick='moveBack();'>
+        <div class="col-3">
+            <button
+                onclick="moveBack()"
+                id="moveBackButton">Previous Reading</button>
         </div> <!--col-3-->
-        <div class="col-3" id="moveForwardDiv">
-            <input type='button'
-                id='moveForwardButton' name='moveForwardButton'
-                value='More Recent Reading' onclick='moveForward();'>
+        <div class="col-3">
+            <button onclick="moveForward()"
+                id="moveForwardButton">
+                More Recent Reading</button>
         </div> <!--col-3-->
     </div> <!--row-->
 
@@ -114,14 +113,10 @@
             <h4>Dates</h4>
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-        <input id="prevDate" class="input"
-                type="text" maxlength="20"
-                value= "2016-04-16" />
+        <span id="prevDate">1945-07-03</span>
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-        <input id="curDate" class="input"
-                type="text" maxlength="20"
-                value= "2016-05-23" />
+        <span id="curDate">1968-05-23</span>
         </div>  <!-- class="col-2" -->
         <div class="col-6">
             <span id="summer">0</span> summer, and
@@ -134,51 +129,38 @@
             <h4>Electricity</h4>
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-            <input id="kwhPrev" class="input"
-                    type="text" maxlength="5"
-                    value= 59708 />kWh
+            <span id="kwhPrev"> ????</span> kWh
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-            <input id="kwhCur" class="input"
-                    type="text" maxlength="5"
-                    value= 60063 />kWh
+            <span id="kwhCur"> ????</span> kWh
         </div>  <!-- class="col-2" -->
         <div class="col-6">
             <span id="tier1">0</span>/
             <span id="tier2">0</span>/
-            <span id="tier2">0</span>
+            <span id="tier3">0</span>
             tier 1/2/3 kWh. 
-            <section class="size125">
-            Cost: $
-            <span id="kwhCost">0.00</span>.
+            <section class="size125">Cost: $
+            <span id="kwhCost">?.??</span>.
             </section>
         </div>  <!-- class="col-6" -->
     </div>  <!-- class="row" -->
 
     <div class="row">
-        <div class="col-2">
-            Propane @ $
-            <input id="gasPrice" class="input"
-                    type="text" maxlength="6"
-                    value= $3.379 />/gal
+        <div class="col-2">Propane @ $
+            <span id="gasPrice"> ?.??</span>/gal
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-            <input id="gasPrev" class="input"
-                    type="text" maxlength="8"
-                    value= 853.7 />cu ft
+            <span id="gasPrev">???</span>cu ft
         </div>  <!-- class="col-2" -->
         <div class="col-2">
-            <input id="gasCur" class="input"
-                    type="text" maxlength="8"
-                    value= 1691.8 />cu ft
+            <span id="gasCur">???</span>cu ft
         </div>  <!-- class="col-2" -->
         <div class="col-6">
             Used 
             <span id="cuftUsed">0</span> cu ft, 
             <span id="galUsed">0</span> gallons;
-            <section class="size125">
-            Cost: $
-            <span id="gasCost">0.00</span>.
+            <section class="size125">Cost: $
+            <span id="gasCost">?.??</span>.
             </section>
         </div>  <!-- class="col-6" -->
     </div>  <!-- class="row" -->
@@ -188,15 +170,18 @@
             <h3>Total Cost</h3>
         </div>
         <div class="col-4">
-            <section class="size150">
-            $<span id="totalCost">0.00</span>
+            <section class="size150">$
+            <span id="totalCost">?.??</span>
             </section>
         </div>
     </div>
-</div>  <!-- class="grid" -->
+</div>  <!-- class="grid" OK-->
 
-<script src="scripts/jquery-1.12.4.js"></script>
-<script src="scripts/jsCost.js"></script>
+<!--
+<script src="jquery-1.12.4.min.js"></script>
+-->
+<script src="all.js"></script>
+
 </body>
 </html>
 
