@@ -29,11 +29,17 @@
         <div class="col-4"> <h2>The Electricity Meter</h2>
             <p>Calculating the cost of electricity is complicated
             because of the way PG&amp;E prices their product.  It
-            involves tier pricing with base levels varying by
-            season and by region within the state (CA.) For now,
-            the region which includes Bolinas is assumed and
-            pricing is assumed to be that in effect at time of
-            writing (mid 2016.)
+            involves a three tier pricing system ( 
+            $<span id="tier1"></span>, 
+            $<span id="tier2"></span> and  
+            $<span id="tier3"></span> per kWh at time of writing
+            in mid 2016,)
+            with base levels varying by
+            season (<span id="summerBase"></span>
+            in summer, May - Oct, and
+            <span id="winterBase"></span>
+            in winter,) and by Zone. These calculations apply
+            to Zone "T", which includes Bolinas.
             </p>
         </div>  <!-- Electricity: class="col-4"-->
         <div class="col-4"> <h2>The Gas Meter</h2>
@@ -191,9 +197,6 @@
     </div>
 </div>  <!-- class="grid" OK-->
 
-<!--
-<script src="jquery-1.12.4.min.js"></script>
--->
 <script src="script.js"></script>
 
 </body>

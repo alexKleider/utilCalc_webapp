@@ -24,11 +24,20 @@ dummyNoCommaItem: undefined
 };               // End of script globals.
 
 const galInCuFt = 0.0278;
+
 const tier1price = 0.18212;
 const tier2price = 0.25444;
 const tier3price = 0.37442;
 const summerBase = 7.0;  //| 'Basic' (E6/E1)
 const winterBase = 8.5;  //| usage in kWh/day.
+
+document.getElementById("tier1").textContent = tier1price;
+document.getElementById("tier2").textContent = tier2price;
+document.getElementById("tier3").textContent = tier3price;
+document.getElementById("summerBase").textContent =
+                                    summerBase.toFixed(1);
+document.getElementById("winterBase").textContent =
+                                    winterBase.toFixed(1);
 
 const winterMonths = [11, 12, 1, 2, 3, 4];
 
