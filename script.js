@@ -31,9 +31,9 @@ const tier3price = 0.37442;
 const summerBase = 7.0;  //| 'Basic' (E6/E1)
 const winterBase = 8.5;  //| usage in kWh/day.
 
-document.getElementById("tier1").textContent = tier1price;
-document.getElementById("tier2").textContent = tier2price;
-document.getElementById("tier3").textContent = tier3price;
+document.getElementById("price1").textContent = tier1price;
+document.getElementById("price2").textContent = tier2price;
+document.getElementById("price3").textContent = tier3price;
 document.getElementById("summerBase").textContent =
                                     summerBase.toFixed(1);
 document.getElementById("winterBase").textContent =
@@ -77,6 +77,15 @@ function daysInFebruary(year){
     return 28;
 }
 
+function inSet(item, set){
+    for (var i in set){
+        if (set[i] == item){
+            return true;
+        }
+    }
+    return false;
+}
+
 function daysafter(date){
 // Returns days remaining in the month.
 // Date comes in as a string YYYY-MM-DD.
@@ -92,11 +101,11 @@ function daysupto(date){
     return d.day;
 }
 
-function baseUsage(month, days){
+function getMonthBaseUsage(month, days){
 //Returns base usage earned by given # of days in given month.
 //Both params come in as numbers.
 //By side effect: keeps track of summer and winter days.
-    if (month in winterMonths){
+    if (inSet(month, winterMonths)){
         SG.winterDays += days;
         return winterBase * days;
     }else{
@@ -105,7 +114,13 @@ function baseUsage(month, days){
     }
 }
 
-function getBaseUsage(date1, date2){
+function showDate(date){
+// Returns string representation of Date object;
+    var collection = [date.yr, date.mo, date.day];
+    return collection.join('/');
+}
+
+function getTotalBaseUsage(date1, date2){
 //Returns usage earned by the interval.
 //If date2 is before or the same as date1: warning printed
 //to console.log and returns undefined.
@@ -115,15 +130,15 @@ function getBaseUsage(date1, date2){
     || ((d1.yr==d2.yr) && (d1.mo<d2.mo))
     || ((d1.yr==d2.yr) && (d1.mo==d2.mo) && (d1.day<d2.day))){
         if ((d2.yr == d1.yr) && (d2.mo == d1.mo)){
-            return baseUsage(d.mo, d2.day - d1.day);
+            return getMonthBaseUsage(d1.mo, d2.day - d1.day);
         }  // Same month so we're done!
         // Not the same month so first get base usage for the
         // first month and the last month:
         var ret = 0;
         var m1Days = daysafter(date1)
         var m2Days = daysupto(date2)
-        ret += baseUsage(date1.mo, m1Days)
-                + baseUsage(date2.mo, m2Days);
+        ret += getMonthBaseUsage(d1.mo, m1Days)
+                + getMonthBaseUsage(d2.mo, m2Days);
         // Now there remains only to add the intervening days:
         var month = d1.mo +1;
         var year = d1.yr;
@@ -138,7 +153,7 @@ function getBaseUsage(date1, date2){
             }else{
                 monthLength = monthLengths[month];
             }
-            ret += baseUsage(month, monthLength);
+            ret += getMonthBaseUsage(month, monthLength);
             month += 1
             if (month == 13){
                 month = 1;
@@ -180,8 +195,8 @@ function Container(jPrev, jCur){
     // all the calculating is done.
 
     SG.summerDays = 0;
-    SG.WinterDays = 0;
-    var baseUsage = getBaseUsage(jPrev.date, jCur.date);
+    SG.winterDays = 0;
+    var baseUsage = getTotalBaseUsage(jPrev.date, jCur.date);
 
     this.prevDate = jPrev.date;
     this.curDate = jCur.date;
@@ -190,10 +205,11 @@ function Container(jPrev, jCur){
     this.gasPrice = jCur.cost;
     this.kwhPrev = jPrev.kwh;
     this.kwhCur = jCur.kwh;
-    this.summer = SG.summerDays; // These are calculated in
-    this.winter = SG.winterDays; // kwhHelpers.js as running
-                              // totals by side effect of
-                              // getBaseUsage function.
+    this.summer = SG.summerDays; // These are calculated as
+    this.winter = SG.winterDays; // running totals by side
+                              // effect of getMonthBaseUsage
+                              // function which is called by
+                              // getTotalBaseUsage.
     var cuft = (Number(this.gasCur) -
                 Number(this.gasPrev));
     this.cuftUsed = cuft.toFixed(1);
@@ -209,7 +225,6 @@ function Container(jPrev, jCur){
     this.tier3 = SG.tier3;
     this.kwhCost = costOfKwh.toFixed(2);
     this.COST = costOfGas + costOfKwh;
-    console.log("new Container sets COST to " + this.COST);
     this.totalCost = this.COST.toFixed(2);
     this.paid = Number(jCur.paid);
     this.owing = undefined;  // Set when container
@@ -353,7 +368,6 @@ function calculate(){
         SG.winterDays = 0;
         var curJ, prevJ;
         var runningOwing = 0;
-        console.log("runningOwing set to " + runningOwing);
         for (var ii = 0; ii < jsonObj.length; ii++){
             if (ii == 0){
                 // Can't make a container out of the first object.
@@ -363,18 +377,9 @@ function calculate(){
                 prevJ = curJ
                 curJ = jsonObj[ii];
                 var newContainer = new Container(prevJ, curJ);
-                console.log("newContainer.COST: "
-                                        + newContainer.COST);
-                console.log("newContainer.paid: "
-                                        + newContainer.paid);
                 runningOwing += newContainer.COST;
-                console.log("After runningOwing += curJ.COST: "
-                                            + runningOwing);
                 runningOwing -= newContainer.paid;
-                console.log("After runningOwing -= curJ.paid: "
-                                            + runningOwing);
                 newContainer.owing = runningOwing.toFixed(2);
-                console.log("Assigning owing: " + runningOwing);
                 containers.push(newContainer);
             }
         }
