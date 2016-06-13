@@ -1,5 +1,28 @@
-// Used to be in separate constants.js file:
+
 "use strict";
+
+var SG = {       // Object containing script globals.
+errorReport: "",
+errorReportDefault: "",
+dataFileName: undefined,
+dataFileNameDefault: "Unassigned.",
+fileContent: undefined,
+fileContentDefault: "JSON data expected; not retrieved as yet.",
+resultsContent: undefined,
+resultsContentDefault: "Results unavailable.",
+jsonData: undefined,
+
+summerDays: 0,
+winterDays: 0,
+
+tier1: 0,
+tier2: 0,
+tier3: 0,
+//
+// Unused- here solely to provide last comma free entry.
+dummyNoCommaItem: undefined
+};               // End of script globals.
+
 const galInCuFt = 0.0278;
 const tier1price = 0.18212;
 const tier2price = 0.25444;
@@ -19,29 +42,11 @@ const monthLengths = {2: 28, 1: 31, // Additional code
 const ids = [   "prevDate", "curDate", "summer", "winter",
     "gasPrice", "gasPrev",  "gasCur",  "cuftUsed", "galUsed",
                 "kwhPrev",  "kwhCur",  "tier1", "tier2", "tier3",
-                "gasCost",  "kwhCost", "totalCost" ];
-
-// used to be in separate pure.js file:
-
-// Browser independent code supporting utility calculations.
-// See also the browser dependent js file: jsCost.js
-// These two files as well as jQuery must be in scripts/.
-
-// Used to be in file: scripts/kwhHelpers.js
-//
-"use strict";
-
-var summerDays = 0;
-var winterDays = 0;
-
-//debugger;
+            "gasCost",  "kwhCost", "totalCost", "paid", "owing"];
 
 function Date(dateString){
     // Constructor function.
     // Assumes dateString to be in YYYY-MM-DD format.
-    console.log("Date constructor being called with '"
-                    + dateString + "' which is typeof: "
-                    + (typeof dateString));
     var dateArray = dateString.split("-");
     this.yr = Number(dateArray[0]);
     this.mo = Number(dateArray[1]);
@@ -64,8 +69,8 @@ function daysInFebruary(year){
 }
 
 function daysafter(date){
-// returns days remaining in the month.
-    console.log("daysafter(date) getting " + date);
+// Returns days remaining in the month.
+// Date comes in as a string YYYY-MM-DD.
     var d = new Date(date);
     if (d.mo == 2){return daysInFebruary(d.yr) - d.day}
     return monthLengths[d.mo] - d.day;
@@ -73,41 +78,28 @@ function daysafter(date){
 
 function daysupto(date){
 //Returns number of days in the month up to and including date.
-    console.log("daysupto(date) getting " + date);
+// Date comes in as a string YYYY-MM-DD.
     var d = new Date(date);
     return d.day;
 }
 
 function baseUsage(month, days){
 //Returns base usage earned by given # of days in given month.
+//Both params come in as numbers.
+//By side effect: keeps track of summer and winter days.
     if (month in winterMonths){
-        winterDays += days;
+        SG.winterDays += days;
         return winterBase * days;
+    }else{
+        SG.summerDays += days;
+        return summerBase * days;
     }
-    summerDays += days;
-    return summer_base * days;
-}
-
-function baseUsageAfter(date){
-// Returns usage earned in the month by the days after the date.
-    console.log("baseUsageAfter(date) getting " + date);
-    var d = new Date(date);
-    return baseUsage(d.mo, daysafter(date));
-}
-
-function baseUsageUpto(date){
-//Returns usage earned in the month up to and including the date.
-    console.log("baseUsageUpto(date) getting " + date);
-    var d = new Date(date);
-    return baseUsage(d.mo, daysupto(date));
 }
 
 function getBaseUsage(date1, date2){
 //Returns usage earned by the interval.
 //If date2 is before or the same as date1: warning printed
 //to console.log and returns undefined.
-    console.log("getBaseUsage(date1, date2) getting "
-                    + date1 + " & " + date2);
     var d1 = new Date(date1);
     var d2 = new Date(date2);
     if ((d1.yr<d2.yr)
@@ -115,8 +107,15 @@ function getBaseUsage(date1, date2){
     || ((d1.yr==d2.yr) && (d1.mo==d2.mo) && (d1.day<d2.day))){
         if ((d2.yr == d1.yr) && (d2.mo == d1.mo)){
             return baseUsage(d.mo, d2.day - d1.day);
-        }
-        var ret = baseUsageAfter(date1) + baseUsageUpto(date2);
+        }  // Same month so we're done!
+        // Not the same month so first get base usage for the
+        // first month and the last month:
+        var ret = 0;
+        var m1Days = daysafter(date1)
+        var m2Days = daysupto(date2)
+        ret += baseUsage(date1.mo, m1Days)
+                + baseUsage(date2.mo, m2Days);
+        // Now there remains only to add the intervening days:
         var month = d1.mo +1;
         var year = d1.yr;
         if (month == 13){
@@ -130,13 +129,7 @@ function getBaseUsage(date1, date2){
             }else{
                 monthLength = monthLengths[month];
             }
-            if (month in winterMonths){
-                summerDays += monthLength;
-                ret += summerBase * monthLength;
-            }else{
-                winterDays += monthLength;
-                ret += winterBase * monthLength;
-            }
+            ret += baseUsage(month, monthLength);
             month += 1
             if (month == 13){
                 month = 1;
@@ -152,16 +145,22 @@ function getPgeCost(kwhUsed, base){
 //Returns the cost of the kwhUsed.
 //Requires the base usage for its calculations.
 //Provides closure around the tier pricing.
+    SG.tier1 = 0;
+    SG.tier2 = 0;
+    SG.tier3 = 0;
     if (kwhUsed > 2 * base){
-        return((kwhUsed - 2 * base) * tier3price
-                        + base * tier2price
-                        + base * tier2price)
+        SG.tier3 = kwhUsed - 2 * base;
+        SG.tier2 = base;
+        SG.tier1 = base;
+    } else if (kwhUsed > base){
+        SG.tier2 = kwhUsed - base;
+        SG.tier1 = base;
+    } else { // kwh <= base;
+        SG.tier1 = kwhUsed;
     }
-    if (kwhUsed > base){
-        return ((kwhUsed - base) * tier2price
-                        + base * tier1price);
-    }
-    return kwhUsed * tier1price;
+    return SG.tier3 * tier3price +
+            SG.tier2 * tier2price +
+            SG.tier1 * tier1price;
 }
 
 
@@ -171,6 +170,8 @@ function Container(jPrev, jCur){
     // It is here that, with the helper functions,
     // all the calculating is done.
 
+    SG.summerDays = 0;
+    SG.WinterDays = 0;
     var baseUsage = getBaseUsage(jPrev.date, jCur.date);
 
     this.prevDate = jPrev.date;
@@ -180,28 +181,31 @@ function Container(jPrev, jCur){
     this.gasPrice = jCur.cost;
     this.kwhPrev = jPrev.kwh;
     this.kwhCur = jCur.kwh;
-    this.paid = jCur.paid;
-    this.summer = summerDays; // These are calculated in
-    this.winter = winterDays; // kwhHelpers.js as running
+    this.summer = SG.summerDays; // These are calculated in
+    this.winter = SG.winterDays; // kwhHelpers.js as running
                               // totals by side effect of
                               // getBaseUsage function.
-    this.cuftUsed = (Number(this.gasCur) -
-                    Number(this.gasPrev));
-    var gallons = cuftUsed * Number(galInCuFt);
+    var cuft = (Number(this.gasCur) -
+                Number(this.gasPrev));
+    this.cuftUsed = cuft.toFixed(1);
+    var gallons = cuft * Number(galInCuFt);
     this.galUsed = gallons.toFixed(2);
-    this.tier1 = 0;
-    this.tier2 = 0;
-    this.tier3 = 0;
-    var costOfGas = Number(this.galUsed) *
+    var costOfGas = gallons *
                     Number(this.gasPrice);
     this.gasCost = costOfGas.toFixed(2);
     var kwhUsed = Number(this.kwhCur) - Number(this.kwhPrev);
     var costOfKwh = getPgeCost(kwhUsed, baseUsage);
+    this.tier1 = SG.tier1;
+    this.tier2 = SG.tier2;
+    this.tier3 = SG.tier3;
     this.kwhCost = costOfKwh.toFixed(2);
-    this.totalCost = (costOfGas + costOfKwh).toFixed(2);
-    this.owing =0;  // This will be set when container
-                    // is pushed to the containers array
-                    // with in processJsonStr().
+    this.COST = costOfGas + costOfKwh;
+    console.log("new Container sets COST to " + this.COST);
+    this.totalCost = this.COST.toFixed(2);
+    this.paid = Number(jCur.paid);
+    this.owing = undefined;  // Set when container
+                     // is pushed to the containers array
+                     // with in processJsonStr().
 }
 
 // Tests follow:
@@ -277,7 +281,6 @@ function displayContainer(container){
     //element.textContent = container["prevDate"];
     for (var ii = 0; ii < ids.length; ii++){
         element = document.getElementById(ids[ii]);
-        console.log(element + ' ' + ids[ii]);
         element.textContent = container[ids[ii]];
     }
 }
@@ -337,8 +340,11 @@ function calculate(){
     // Displays latest results and adjusts buttons.
     if (parseInput(fileContent)){ //Assume return would => false,
                                     // valid object ==> true.
+        SG.summerDays = 0;
+        SG.winterDays = 0;
         var curJ, prevJ;
         var runningOwing = 0;
+        console.log("runningOwing set to " + runningOwing);
         for (var ii = 0; ii < jsonObj.length; ii++){
             if (ii == 0){
                 // Can't make a container out of the first object.
@@ -348,9 +354,18 @@ function calculate(){
                 prevJ = curJ
                 curJ = jsonObj[ii];
                 var newContainer = new Container(prevJ, curJ);
-                runningOwing += curJ.totalCost
-                runningOwing -= curJ.paid;
-                newContainer.owing = runningOwing;
+                console.log("newContainer.COST: "
+                                        + newContainer.COST);
+                console.log("newContainer.paid: "
+                                        + newContainer.paid);
+                runningOwing += newContainer.COST;
+                console.log("After runningOwing += curJ.COST: "
+                                            + runningOwing);
+                runningOwing -= newContainer.paid;
+                console.log("After runningOwing -= curJ.paid: "
+                                            + runningOwing);
+                newContainer.owing = runningOwing.toFixed(2);
+                console.log("Assigning owing: " + runningOwing);
                 containers.push(newContainer);
             }
         }
