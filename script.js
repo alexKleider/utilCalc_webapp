@@ -6,11 +6,14 @@ errorReport: "",
 errorReportDefault: "",
 dataFileName: undefined,
 dataFileNameDefault: "Unassigned.",
-fileContent: undefined,
+fileContent: undefined,  // Assigned by onChanage(event)
+        // and used by parseInput with in calculate().
 fileContentDefault: "JSON data expected; not retrieved as yet.",
-resultsContent: undefined,
-resultsContentDefault: "Results unavailable.",
-jsonData: undefined,
+jsonObj: undefined,
+report: document.getElementById("report"),
+containers: [],
+topIndex: 0,       // Keeps track of top and
+currentIndex: 0,   // current index of SG.containers.
 
 summerDays: 0,
 winterDays: 0,
@@ -22,6 +25,7 @@ tier3: 0,
 // Unused- here solely to provide last comma free entry.
 dummyNoCommaItem: undefined
 };               // End of script globals.
+SG.report.textContent = SG.fileContentDefault;
 
 const galInCuFt = 0.0278;
 
@@ -53,6 +57,10 @@ const ids = [   "prevDate", "curDate", "summer", "winter",
                 "kwhPrev",  "kwhCur",  "tier1", "tier2", "tier3",
             "gasCost",  "kwhCost", "totalCost", "paid", "owing"];
 
+var conversionFactor = document.getElementById("conversionFactor");
+conversionFactor.textContent = String(galInCuFt) +
+                               " Gallons per Cubic Ft";
+
 function Date(dateString){
     // Constructor function.
     // Assumes dateString to be in YYYY-MM-DD format.
@@ -78,6 +86,7 @@ function daysInFebruary(year){
 }
 
 function inSet(item, set){
+    // Provides the functionality of the in operator of Python.
     for (var i in set){
         if (set[i] == item){
             return true;
@@ -228,7 +237,7 @@ function Container(jPrev, jCur){
     this.totalCost = this.COST.toFixed(2);
     this.paid = Number(jCur.paid);
     this.owing = undefined;  // Set when container
-                     // is pushed to the containers array
+                     // is pushed to the SG.containers array
                      // with in processJsonStr().
 }
 
@@ -242,49 +251,22 @@ function TestDaysInFebruary(){
     years.forEach(TestYear);
 }
 
-
-var data = [
-{"date": "2016-03-19","gas": 30.1, "price": 0, "kwh": 59466, "paid": 0},
-{"date": "2016-04-16","gas": 853.7, "price": 4.079, "kwh": 59708, "paid": 181.35},
-{"date": "2016-05-23","gas": 1691.8, "price": 3.379, "kwh": 60063, "paid": 105.21}
-]
-
-
-// Used to be in separate html.js file:
-
-// Contains the browser dependent code.
-
-var conversionFactor = document.getElementById("conversionFactor");
-conversionFactor.textContent = String(galInCuFt) +
-                               " Gallons per Cubic Ft";
-
 function onChange(event){
     // Event (triggered by user selecting a file) handler.
-    // Assigns content of file to var fileContent.
+    // Assigns content of file to SG.fileContent.
     // Sets up appropriate values for calculate and move buttons.
     console.log("You've changed files.");
     var file = event.target.files[0];
     var reader = new FileReader();
     reader.onload = function(event){
-        fileContent = event.target.result;
-        report.textContent = fileContent;
+        SG.fileContent = event.target.result;
+        SG.report.textContent = SG.fileContent;
     }
     reader.readAsText(file);
     disableCalculate(false);
     disableMoveForward(true);
     disableMoveBack(true);
 }
-
-// Helper functions and globals for calculate():
-// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-var fileContent = '';  // Assigned by onChanage(event)
-        // and used by parseInput with in go2wor().
-var jsonObj;
-var report = document.getElementById("report");
-var containers = [];
-var topIndex = 0;       // Keeps track of top and
-var currentIndex = 0;   // current index of containers.
 
 function disableCalculate(bool){
     document.getElementById("calculateButton").disabled = bool;
@@ -309,42 +291,54 @@ function displayContainer(container){
     }
 }
 
+function setButtons(){
+    if (SG.topIndex == SG.currentIndex){
+        disableMoveForward(true);
+    }
+    if (SG.currentIndex == 0){
+        disableMoveBack(true);
+    }
+    if (SG.currentIndex > 0){
+        disableMoveBack(false);
+    }
+    if (SG.currentIndex < SG.topIndex){
+        disableMoveForward(false);
+    }
+    
+}
+
 function moveBack(){
-    if (currentIndex == 0){
+    if (SG.currentIndex == 0){
         console.log("This shouldn't happen!");
         disableMoveBack(true);
-    }else{
-        currentIndex -= 1;
-        displayContainer(containers[currentIndex]);
-        disableMoveForward(false);
-        if (currentIndex == 0){
-            disableMoveBack(true);
-        }
+        displayContainer(SG.containers[0]);
+        return;
     }
+    SG.currentIndex -= 1;
+    displayContainer(SG.containers[SG.currentIndex]);
+    setButtons();
 }
 
 function moveForward(){
-    if (currentIndex >= topIndex){
+    if (SG.currentIndex >= SG.topIndex){
         console.log("This shouldn't happen!");
         disableMoveForward(true);
-    }else{
-        currentIndex += 1;
-        displayContainer(containers[currentIndex]);
-        disableMoveBack(false);
-        if (currentIndex >= topIndex){
-            disableMoveForward(true);
-        }
+        displayContainer(SG.containers[SG.topIndex]);
+        return;
     }
+    SG.currentIndex += 1;
+    displayContainer(SG.containers[SG.currentIndex]);
+    setButtons();
 }
 
 function parseInput(fileContent){
-    // Takes the file content (already read into fileContent)
-    // and attempts to parse it into global var jsonObj.
+    // Takes the file content (already read into SG.fileContent)
+    // and attempts to parse it into global SG.jsonObj.
     // Reverts to base state if parsing fails.
-    try{jsonObj = JSON.parse(fileContent); }
+    try{SG.jsonObj = JSON.parse(fileContent); }
     catch(e){
         if (e instanceof SyntaxError){
-            report.textContent = 
+            SG.report.textContent = 
             "Parsing JSON file failed due to a syntax error"
             + /*" on line # " +  e.linenumber + */
             ". Fix/edit/change the file and try again.";
@@ -359,33 +353,32 @@ function parseInput(fileContent){
 
 
 function calculate(){
-    // Assigns values to containers array
-    // setting its currentIndex and topIndex values;
+    // Assigns values to SG.containers array
+    // setting its SG.currentIndex and SG.topIndex values;
     // Displays latest results and adjusts buttons.
-    if (parseInput(fileContent)){ //Assume return would => false,
-                                    // valid object ==> true.
+    if (parseInput(SG.fileContent)){
         SG.summerDays = 0;
         SG.winterDays = 0;
         var curJ, prevJ;
         var runningOwing = 0;
-        for (var ii = 0; ii < jsonObj.length; ii++){
+        for (var ii = 0; ii < SG.jsonObj.length; ii++){
             if (ii == 0){
                 // Can't make a container out of the first object.
-                curJ = jsonObj[ii];
+                curJ = SG.jsonObj[ii];
             }else{
             // Ready to add a Container.
                 prevJ = curJ
-                curJ = jsonObj[ii];
+                curJ = SG.jsonObj[ii];
                 var newContainer = new Container(prevJ, curJ);
                 runningOwing += newContainer.COST;
                 runningOwing -= newContainer.paid;
                 newContainer.owing = runningOwing.toFixed(2);
-                containers.push(newContainer);
+                SG.containers.push(newContainer);
             }
         }
-        topIndex = containers.length -1;
-        currentIndex = topIndex;
-        displayContainer(containers[currentIndex]);
+        SG.topIndex = SG.containers.length -1;
+        SG.currentIndex = SG.topIndex;
+        displayContainer(SG.containers[SG.currentIndex]);
         disableMoveBack(false);
         disableMoveForward(true);
     } // else: simply returns. Json wasn't valid.

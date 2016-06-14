@@ -1,6 +1,7 @@
-/*  The next two rules are used to more clearly see the lay out.  They
- *  are included for design purposes but the intent would be to remove
- *  them once in production.
+/*  The next two rules are used to more clearly see the
+ *  lay out.They are included for design purposes but
+ *  the intent would be to replace them with more visually
+ *  friendly boarders once in production.
  */
 * {
     border: 1px solid red !important;
@@ -12,7 +13,8 @@
     -ms-box-sizing: border-box;
     box-sizing: border-box;
 }
-/* End of rules used for design
+/* 
+ * End of rules used for design
  */
 
 body {
