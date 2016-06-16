@@ -1,11 +1,11 @@
-
 "use strict";
 
 var SG = {       // Object containing script globals.
 errorReport: "",
 errorReportDefault: "",
-dataFileName: undefined,
-dataFileNameDefault: "Unassigned.",
+inputFile: "json.txt",  // File suggested in the intro.
+dataFileName: undefined,             // These two are
+dataFileNameDefault: "Unassigned.",  //   not used.
 fileContent: undefined,  // Assigned by onChanage(event)
         // and used by parseInput with in calculate().
 fileContentDefault: "JSON data expected; not retrieved as yet.",
@@ -35,6 +35,7 @@ const tier3price = 0.37442;
 const summerBase = 7.0;  //| 'Basic' (E6/E1)
 const winterBase = 8.5;  //| usage in kWh/day.
 
+document.getElementById("inputFile").textContent = SG.inputFile;
 document.getElementById("price1").textContent = tier1price;
 document.getElementById("price2").textContent = tier2price;
 document.getElementById("price3").textContent = tier3price;
@@ -256,6 +257,7 @@ function onChange(event){
     // Assigns content of file to SG.fileContent.
     // Sets up appropriate values for calculate and move buttons.
     console.log("You've changed files.");
+    disableCalculate(false);
     var file = event.target.files[0];
     var reader = new FileReader();
     reader.onload = function(event){
@@ -384,6 +386,6 @@ function calculate(){
     } // else: simply returns. Json wasn't valid.
 }
 
-disableCalculate(false)
+disableCalculate(true);
 disableMoveBack(true);
 disableMoveForward(true);
