@@ -21,10 +21,34 @@ winterDays: 0,
 tier1: 0,
 tier2: 0,
 tier3: 0,
-//
+
+emptyContainer: {
+    prevDate: "",
+    curDate: "",
+    gasPrev: "",
+    gasCur: "",
+    gasPrice: "",
+    kwhPrev: "",
+    kwhCur: "",
+    summer: "",
+    winter: "",
+    cuftUsed: "",
+    galUsed: "",
+    gasCost: "",
+    tier1: "",
+    tier2: "",
+    tier3: "",
+    kwhCost: "",
+    COST: "",
+    totalCost: "",
+    paid: "",
+    owing: ""
+},
+
 // Unused- here solely to provide last comma free entry.
 dummyNoCommaItem: undefined
 };               // End of script globals.
+
 SG.report.textContent = SG.fileContentDefault;
 
 const galInCuFt = 0.0278;
@@ -239,7 +263,7 @@ function Container(jPrev, jCur){
     this.paid = Number(jCur.paid);
     this.owing = undefined;  // Set when container
                      // is pushed to the SG.containers array
-                     // with in processJsonStr().
+                     // with in calculate().
 }
 
 // Tests follow:
@@ -257,7 +281,7 @@ function onChange(event){
     // Assigns content of file to SG.fileContent.
     // Sets up appropriate values for calculate and move buttons.
     console.log("You've changed files.");
-    disableCalculate(false);
+    displayContainer(SG.emptyContainer);
     var file = event.target.files[0];
     var reader = new FileReader();
     reader.onload = function(event){
@@ -389,3 +413,4 @@ function calculate(){
 disableCalculate(true);
 disableMoveBack(true);
 disableMoveForward(true);
+displayContainer(SG.emptyContainer);
