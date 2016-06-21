@@ -11,7 +11,7 @@ provides a webapp interface developed to meet the
 need of preparing a utility invoice.  Its input (which
 the user provides using a file selector button) is a JSON
 file of the form of the included ``json.txt`` file.  Once
-file is loaded the user can activate processing using a
+loaded, the user can activate processing using a
 ``Calculate`` button and if the JSON is parsed successfully
 into meaningful data, the output is pesented.  Numerous
 readings (a minimum of two!) can be supplied to provide 
